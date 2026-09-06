@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Kontakt{% endblock %}
+
+{% block content %}
+    <h1>Kontakt</h1>
+    <p>Send meg en melding ved å fylle ut skjemaet.</p>
+
+    <form method="POST" action="{{ url_for('kontakt') }}">
+        <label for="navn">Navn</label>
+        <input type="text" id="navn" name="navn" required>
+
+        <label for="epost">E-post</label>
+        <input type="email" id="epost" name="epost" required>
+
+        <label for="melding">Melding</label>
+        <textarea id="melding" name="melding" rows="5" required></textarea>
+
+        <button type="submit">Send melding</button>
+    </form>
+
+    {% if innsendt %}
+        <h2>Takk for meldingen, {{ innsendt.navn }}!</h2>
+        <p>Jeg svarer til {{ innsendt.epost }}.</p>
+        <p>Meldingen din: {{ innsendt.melding }}</p>
+    {% endif %}
+{% endblock %}

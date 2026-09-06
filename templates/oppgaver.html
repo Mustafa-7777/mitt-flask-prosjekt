@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Mine oppgaver{% endblock %}
+
+{% block content %}
+    <h1>Mine oppgaver</h1>
+    <p>Legg til, endre og slett oppgaver i listen din.</p>
+
+    <form method="POST" action="{{ url_for('oppgaver') }}">
+        <label for="tekst">Ny oppgave</label>
+        <input type="text" id="tekst" name="tekst" placeholder="Hva skal gjøres?" required>
+        <button type="submit">Legg til</button>
+    </form>
+
+    <ul class="oppgaveliste">
+        {% for oppgave in oppgaver %}
+            <li>
+                <span>{{ oppgave.tekst }}</span>
+                <a href="{{ url_for('endre_oppgave', oppgave_id=oppgave.id) }}">Endre</a>
+                <form method="POST" action="{{ url_for('slett_oppgave_side', oppgave_id=oppgave.id) }}" class="inline-form">
+                    <button type="submit">Slett</button>
+                </form>
+            </li>
+        {% else %}
+            <li>Ingen oppgaver ennå.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Min Flask-side{% endblock %}
+
+{% block content %}
+    <h1>Velkommen, {{ navn }}!</h1>
+
+    <p>Denne siden har blitt besøkt {{ antall_besok }} ganger.</p>
+
+    {% if antall_besok > 100 %}
+        <p>Wow, denne siden er populær!</p>
+    {% else %}
+        <p>Del gjerne siden med flere.</p>
+    {% endif %}
+{% endblock %}

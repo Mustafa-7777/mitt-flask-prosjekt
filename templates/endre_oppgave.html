@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Endre oppgave{% endblock %}
+
+{% block content %}
+    <h1>Endre oppgave</h1>
+
+    <form method="POST" action="{{ url_for('endre_oppgave', oppgave_id=oppgave.id) }}">
+        <label for="tekst">Oppgave</label>
+        <input type="text" id="tekst" name="tekst" value="{{ oppgave.tekst }}" required>
+        <button type="submit">Lagre endring</button>
+        <a href="{{ url_for('oppgaver') }}">Avbryt</a>
+    </form>
+
+    {% if feil %}
+        <p>{{ feil }}</p>
+    {% endif %}
+{% endblock %}

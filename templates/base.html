@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Min Flask-side{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav>
+        <a href="{{ url_for('home') }}">Hjem</a>
+        <a href="{{ url_for('om') }}">Om meg</a>
+        <a href="{{ url_for('kontakt') }}">Kontakt</a>
+        <a href="{{ url_for('skjema') }}">Skjema</a>
+        <a href="{{ url_for('oppgaver') }}">Oppgaver</a>
+    </nav>
+
+    {% with meldinger = get_flashed_messages() %}
+        {% if meldinger %}
+            {% for melding in meldinger %}
+                <p>{{ melding }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>
