@@ -1,7 +1,27 @@
+:root {
+    color-scheme: light;
+    --background: #f5f5f5;
+    --text: #222222;
+    --link: #174ea6;
+    --surface: #ffffff;
+    --border: #cccccc;
+}
+
+:root.dark-mode {
+    color-scheme: dark;
+    --background: #1d2025;
+    --text: #f2f4f7;
+    --link: #8ab4f8;
+    --surface: #292d33;
+    --border: #626a75;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 40px;
-    background-color: #f5f5f5;
+    background-color: var(--background);
+    color: var(--text);
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 nav {
@@ -12,6 +32,23 @@ nav a {
     margin-right: 20px;
     text-decoration: none;
     font-weight: bold;
+    color: var(--link);
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+    margin-bottom: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background-color: var(--surface);
+    color: var(--text);
+}
+
+.theme-toggle-text {
+    display: inline;
 }
 
 h1 {
@@ -39,6 +76,9 @@ textarea {
     box-sizing: border-box;
     padding: 8px;
     width: 100%;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
 }
 
 button {

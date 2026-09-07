@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}Min Flask-side{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
 </head>
 
 <body>
@@ -14,6 +15,10 @@
         <a href="{{ url_for('kontakt') }}">Kontakt</a>
         <a href="{{ url_for('skjema') }}">Skjema</a>
         <a href="{{ url_for('oppgaver') }}">Oppgaver</a>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Aktiver mørk modus" aria-pressed="false">
+            <span aria-hidden="true">🌙</span>
+            <span class="theme-toggle-text">Mørk modus</span>
+        </button>
     </nav>
 
     {% with meldinger = get_flashed_messages() %}
