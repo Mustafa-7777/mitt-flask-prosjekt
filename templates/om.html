@@ -3,6 +3,53 @@
 {% block title %}Om meg{% endblock %}
 
 {% block content %}
-    <h1>Om meg</h1>
-    <p>Velkommen til siden min. Jeg lærer å bygge nettsider med Flask.</p>
+    <main class="fantasy-profile">
+        <header class="profile-hero">
+            <p class="eyebrow">En reisende mellom kode og mennesker</p>
+            <h1>Mustafa Alhasan</h1>
+            <p class="hero-text">Jeg bygger min egen vei gjennom teknologi, service og nye eventyr.</p>
+            <a class="quest-button" href="{{ url_for('kontakt') }}">Send en melding <span aria-hidden="true">↗</span></a>
+        </header>
+
+        <section class="profile-grid" aria-label="Om Mustafa">
+            <article class="profile-card intro-card">
+                <span class="rune" aria-hidden="true">✦</span>
+                <h2>Historien min</h2>
+                <p>Fra Idlib til Skien har reisen min ført meg gjennom skole, arbeid og stadig nye ferdigheter. Nå studerer jeg dataingeniørfag ved USN og utforsker hvordan ideer kan bli til noe mennesker faktisk kan bruke.</p>
+            </article>
+
+            <article class="profile-card stats-card">
+                <h2>Mine krefter</h2>
+                <div class="stat"><span>Teknologi</span><strong>Under utvikling</strong></div>
+                <div class="stat"><span>Kundeservice</span><strong>Erfaren</strong></div>
+                <div class="stat"><span>Arbeidsvilje</span><strong>Alltid aktiv</strong></div>
+            </article>
+        </section>
+
+        <section class="journey-section">
+            <p class="eyebrow">Kapittel I - reisen så langt</p>
+            <h2>Veien gjennom rikene</h2>
+            <div class="journey-list">
+                <article class="journey-step">
+                    <span class="journey-year">Nå</span>
+                    <div><h3>Dataingeniør ved USN</h3><p>Jeg lærer å forme digitale løsninger med kode, nysgjerrighet og realfag.</p></div>
+                </article>
+                <article class="journey-step">
+                    <span class="journey-year">2020 - nå</span>
+                    <div><h3>Vertskapets mange eventyr</h3><p>Damascino, City Asia Mat og Domino's har lært meg samarbeid, tempo og ekte kundekontakt.</p></div>
+                </article>
+                <article class="journey-step">
+                    <span class="journey-year">2022 - 2024</span>
+                    <div><h3>Festivaler, barer og nye horisonter</h3><p>Fra Milan til Stavernfestivalen og Foodora: hver arbeidsplass har gitt meg en ny ferdighet i sekken.</p></div>
+                </article>
+            </div>
+        </section>
+
+        <footer class="profile-footer">
+            <p>Finn meg i Skien</p>
+            <a href="mailto:mostafa.alhasan1880@gmail.com">mostafa.alhasan1880@gmail.com</a>
+            <span>·</span>
+            <a href="tel:96710146">96710146</a>
+        </footer>
+    </main>
 {% endblock %}
