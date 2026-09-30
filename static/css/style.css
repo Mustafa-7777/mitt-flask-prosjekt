@@ -197,6 +197,41 @@ button {
     transform: translateY(-1px);
 }
 
+.nutrition-report-link {
+    display: inline-flex;
+    margin-top: 16px;
+    padding: 9px 13px;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    color: var(--accent-strong);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.nutrition-report-link:hover {
+    background: var(--soft-surface);
+}
+
+.nutrition-week-navigation {
+    display: flex;
+    flex: 0 1 580px;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.nutrition-week-navigation > a {
+    flex: 0 0 auto;
+    color: var(--accent-strong);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.nutrition-week-navigation .nutrition-date-form {
+    flex: 1 1 300px;
+}
+
 .nutrition-summary,
 .nutrition-card {
     margin: 0 0 24px;
@@ -205,6 +240,337 @@ button {
     border-radius: 20px;
     background-color: var(--surface);
     box-shadow: var(--shadow);
+}
+
+.nutrition-goal-card {
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+
+.nutrition-goal-card > h2 {
+    margin: 0 0 10px;
+}
+
+.nutrition-profile-form {
+    margin-top: 20px;
+}
+
+.nutrition-targets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+.nutrition-targets > div {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--soft-surface);
+}
+
+.nutrition-targets dt {
+    color: var(--muted);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.nutrition-targets dd {
+    margin: 8px 0 0;
+    font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+    font-weight: 800;
+}
+
+.nutrition-targets small {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.nutrition-targets .nutrition-target-primary {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+.nutrition-target-primary dd {
+    color: var(--accent-strong);
+}
+
+.nutrition-target-table-wrap {
+    overflow-x: auto;
+    margin-top: 18px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.nutrition-target-details {
+    margin-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+.nutrition-target-details summary {
+    padding: 14px 0 2px;
+    color: var(--accent-strong);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.nutrition-target-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.nutrition-target-table th,
+.nutrition-target-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.nutrition-target-table thead {
+    background: var(--soft-surface);
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.nutrition-target-table tbody th {
+    font-weight: 700;
+}
+
+.nutrition-target-table tbody tr:last-child th,
+.nutrition-target-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.nutrition-health-note {
+    margin: 16px 0 0;
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.6;
+}
+
+.nutrition-week-status {
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.nutrition-week-status-success {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    background: var(--soft-surface);
+}
+
+.nutrition-week-status-incomplete {
+    background: var(--soft-surface);
+}
+
+.nutrition-week-status-notice {
+    border-color: color-mix(in srgb, #d68b32 40%, var(--border));
+}
+
+.nutrition-report-table {
+    min-width: 760px;
+}
+
+.nutrition-report-table td:last-child {
+    white-space: normal;
+}
+
+@media (max-width: 820px) {
+    .nutrition-week-navigation {
+        align-items: stretch;
+        flex-basis: auto;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .nutrition-week-navigation .nutrition-date-form {
+        flex-basis: 100%;
+        order: -1;
+    }
+}
+
+.nutrition-progress-section {
+    margin-top: 24px;
+}
+
+.nutrition-progress-section > .nutrition-section-heading {
+    margin-bottom: 16px;
+}
+
+.nutrition-progress-section h3 {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.nutrition-progress-section > .nutrition-section-heading > p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.84rem;
+}
+
+.nutrition-period-switch {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--soft-surface);
+}
+
+.nutrition-period-switch button {
+    min-width: 64px;
+    margin: 0;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 700;
+}
+
+.nutrition-period-switch button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--accent-strong);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.nutrition-period-caption {
+    margin: -4px 0 14px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.nutrition-progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+    gap: 14px;
+}
+
+.nutrition-progress-grid[hidden],
+.nutrition-period-caption[hidden] {
+    display: none;
+}
+
+.nutrition-progress-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 10px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--surface) 86%, var(--soft-surface));
+    text-align: center;
+}
+
+.nutrition-progress-ring {
+    display: grid;
+    width: 104px;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--ring-color, var(--accent)) 0 var(--ring-progress),
+        var(--border) var(--ring-progress) 100%
+    );
+}
+
+.nutrition-progress-ring > span {
+    display: flex;
+    width: 82px;
+    aspect-ratio: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--surface);
+}
+
+.nutrition-progress-ring strong {
+    max-width: 70px;
+    overflow: hidden;
+    font-size: 1.3rem;
+    letter-spacing: -0.04em;
+    text-overflow: ellipsis;
+}
+
+.nutrition-progress-ring small {
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+
+.nutrition-progress-over {
+    --ring-color: #c74747;
+}
+
+.nutrition-progress-item h4 {
+    margin: 12px 0 0;
+    font-size: 0.92rem;
+}
+
+.nutrition-progress-target {
+    margin: 4px 0 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.nutrition-progress-status {
+    min-height: 2.5em;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 0.76rem;
+    line-height: 1.3;
+}
+
+.nutrition-water-form {
+    display: flex;
+    max-width: 480px;
+    align-items: end;
+    gap: 12px;
+}
+
+.nutrition-water-form > div {
+    flex: 1 1 180px;
+}
+
+.nutrition-water-form button {
+    margin-top: 0;
+}
+
+.nutrition-water-entries {
+    display: grid;
+    max-width: 480px;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nutrition-water-entries li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.nutrition-water-entries .inline-form {
+    margin: 0;
+}
+
+.nutrition-water-entries button {
+    margin: 0;
+    padding: 7px 11px;
 }
 
 .nutrition-summary {
@@ -232,6 +598,96 @@ button {
 .nutrition-empty-hint {
     margin: 0;
     color: var(--muted);
+}
+
+.nutrition-product-search {
+    max-width: none;
+    margin: 20px 0 24px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--soft-surface);
+}
+
+.nutrition-product-search label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.nutrition-product-search > div:first-of-type {
+    display: flex;
+    gap: 10px;
+}
+
+.nutrition-product-search input {
+    min-width: 0;
+    min-height: 44px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+}
+
+.nutrition-product-search button {
+    border: 0;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+}
+
+.nutrition-product-search button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.nutrition-search-attribution,
+.nutrition-search-status {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.nutrition-search-attribution a {
+    color: var(--accent-strong);
+    font-weight: 700;
+}
+
+.nutrition-search-results {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nutrition-search-result {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    text-align: left;
+}
+
+.nutrition-search-result:hover {
+    border-color: var(--accent) !important;
+}
+
+.nutrition-search-result small {
+    color: var(--muted);
+    font-weight: 400;
 }
 
 .nutrition-totals {
@@ -341,6 +797,66 @@ button {
     white-space: normal;
 }
 
+.nutrition-food-management {
+    margin-top: 22px;
+    border-top: 1px solid var(--border);
+}
+
+.nutrition-food-management summary {
+    padding: 16px 0 4px;
+    color: var(--accent-strong);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.nutrition-food-management ul {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nutrition-food-management li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.nutrition-food-management li span {
+    min-width: 0;
+}
+
+.nutrition-food-management li small {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.nutrition-edit-link,
+.nutrition-edit-actions a {
+    flex: 0 0 auto;
+    color: var(--accent-strong);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.nutrition-edit-link:hover,
+.nutrition-edit-actions a:hover {
+    text-decoration: underline;
+}
+
+.nutrition-edit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+}
+
 .nutrition-form button {
     min-height: 44px;
     margin-top: 4px;
@@ -448,6 +964,10 @@ button {
         grid-template-columns: 1fr;
         gap: 0;
     }
+
+    .nutrition-targets {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -462,6 +982,11 @@ button {
 
     .nutrition-form-grid {
         grid-template-columns: 1fr;
+    }
+
+    .nutrition-water-form {
+        align-items: stretch;
+        flex-direction: column;
     }
 
     .nutrition-field-wide {

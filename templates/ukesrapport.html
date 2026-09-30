@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Ukesrapport - Matlogg{% endblock %}
+
+{% block content %}
+    <main class="nutrition-page">
+        <header class="nutrition-hero">
+            <div>
+                <p class="nutrition-eyebrow">MATLOGG · UKESRAPPORT</p>
+                <h1>Uken din</h1>
+                <p>Oppsummering av registrert mat og vann fra {{ uke_start }} til {{ uke_slutt }}.</p>
+                <a class="nutrition-report-link" href="{{ url_for('matlogg', dato=uke_start) }}">Tilbake til matloggen</a>
+            </div>
+            <nav class="nutrition-week-navigation" aria-label="Velg rapportuke">
+                <a href="{{ url_for('ukesrapport', dato=uke_forrige) }}" aria-label="Forrige uke">← Forrige uke</a>
+                <form method="GET" action="{{ url_for('ukesrapport') }}" class="nutrition-date-form">
+                    <label for="dato">Velg dato i uken</label>
+                    <div>
+                        <input type="date" id="dato" name="dato" value="{{ valgt_dato }}" required>
+                        <button type="submit">Vis uke</button>
+                    </div>
+                </form>
+                <a href="{{ url_for('ukesrapport', dato=uke_neste) }}" aria-label="Neste uke">Neste uke →</a>
+            </nav>
+        </header>
+
+        <section class="nutrition-card">
+            <div class="nutrition-section-heading">
+                <div>
+                    <p class="nutrition-eyebrow">UKENS OPPSUMMERING</p>
+                    <h2>{{ entries }} matregistreringer · mat {{ logged_days }}/7 dager · vann {{ water_logged_days }}/7 dager</h2>
+                </div>
+            </div>
+            <p class="nutrition-week-status nutrition-week-status-{{ report_status_kind }}" role="status">
+                {{ report_status }}
+            </p>
+            {% if report_rows %}
+                <p class="nutrition-card-description">
+                    Gjennomsnitt regnes per dag med registrering i den aktuelle kategorien.
+                    Vann har egen dagsopptelling og vurderes mot ditt personlige mål.
+                </p>
+                <div class="nutrition-target-table-wrap">
+                    <table class="nutrition-target-table nutrition-report-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Næringsstoff</th>
+                                <th scope="col">Sum denne uken</th>
+                                <th scope="col">Snitt per relevant loggdag</th>
+                                <th scope="col">Ukemål</th>
+                                <th scope="col">Vurdering</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in report_rows %}
+                                <tr>
+                                    <th scope="row">{{ row.label }}</th>
+                                    <td>{{ "%.1f"|format(row.total) }} {{ row.unit }}</td>
+                                    <td>{{ "%.1f"|format(row.average) }} {{ row.unit }}</td>
+                                    <td>{{ row.target }}</td>
+                                    <td>{{ row.status }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Opprett profilen din på matlogsiden for å få ukesmål og vurdering.</p>
+            {% endif %}
+            <p class="nutrition-health-note">
+                Rapporten viser bare mat og vann som er registrert. Vannregistreringer teller ikke som matloggdager.
+                Den kan ikke fastslå faktisk vektendring eller muskelvekst.
+                Næringsverdier og mål er estimater, ikke medisinsk rådgivning.
+            </p>
+        </section>
+    </main>
+{% endblock %}

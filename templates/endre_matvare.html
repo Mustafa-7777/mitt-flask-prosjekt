@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Rediger {{ matvare.name }} - Matlogg{% endblock %}
+
+{% block content %}
+    <main class="nutrition-page">
+        <header class="nutrition-hero">
+            <div>
+                <p class="nutrition-eyebrow">MATVARELISTE</p>
+                <h1>Rediger matvare</h1>
+                <p>Oppdater produktinformasjonen og næringsinnholdet per 100 g.</p>
+            </div>
+        </header>
+
+        <section class="nutrition-card">
+            <form method="POST" action="{{ url_for('endre_matvare', matvare_id=matvare.id) }}" class="nutrition-form">
+                <input type="hidden" name="dato" value="{{ valgt_dato }}">
+                <div class="nutrition-form-grid">
+                    <div class="nutrition-field-wide">
+                        <label for="name">Navn på matvaren</label>
+                        <input type="text" id="name" name="name" maxlength="100" value="{{ matvare.name }}" required>
+                    </div>
+                    <div class="nutrition-field-wide">
+                        <label for="description">Beskrivelse (valgfritt)</label>
+                        <textarea id="description" name="description" maxlength="500" rows="3">{{ matvare.description }}</textarea>
+                    </div>
+                    {% for nutrient, label, unit in nutrients %}
+                        <div>
+                            <label for="{{ nutrient }}">{{ label }} ({{ unit }})</label>
+                            <input type="number" id="{{ nutrient }}" name="{{ nutrient }}" min="0" step="any" value="{{ matvare[nutrient] }}" required>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="nutrition-edit-actions">
+                    <button type="submit">Lagre endringer</button>
+                    <a href="{{ url_for('matlogg', dato=valgt_dato) }}">Avbryt</a>
+                </div>
+            </form>
+        </section>
+    </main>
+{% endblock %}

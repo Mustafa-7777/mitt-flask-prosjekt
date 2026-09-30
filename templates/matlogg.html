@@ -9,6 +9,7 @@
                 <p class="nutrition-eyebrow">DIN DAGLIGE OVERSIKT</p>
                 <h1>Matlogg</h1>
                 <p>Følg med på hva du spiser og næringsinntaket ditt gjennom dagen.</p>
+                <a class="nutrition-report-link" href="{{ url_for('ukesrapport', dato=valgt_dato) }}">Se ukesrapport</a>
             </div>
             <form method="GET" action="{{ url_for('matlogg') }}" class="nutrition-date-form">
                 <label for="dato">Velg dato</label>
@@ -18,6 +19,164 @@
                 </div>
             </form>
         </header>
+
+        <section class="nutrition-card nutrition-goal-card">
+            {% if profile %}
+                <div class="nutrition-section-heading">
+                    <div>
+                        <p class="nutrition-eyebrow">DITT PERSONLIGE ESTIMAT</p>
+                        <h2>{{ calorie_targets.goal_label }}</h2>
+                    </div>
+                    <a class="nutrition-edit-link" href="{{ url_for('profil') }}">Endre profil</a>
+                </div>
+                <dl class="nutrition-targets">
+                    <div class="nutrition-target-primary">
+                        <dt>Anbefalt per dag</dt>
+                        <dd>{{ calorie_targets.daily }} kcal</dd>
+                    </div>
+                    <div>
+                        <dt>Beregnet vedlikehold</dt>
+                        <dd>{{ calorie_targets.maintenance }} kcal/dag</dd>
+                    </div>
+                </dl>
+                {% if profile.goal_weight_kg %}
+                    <p class="nutrition-card-description">Målvekt: {{ "%.1f"|format(profile.goal_weight_kg) }} kg</p>
+                {% endif %}
+                <details class="nutrition-target-details">
+                    <summary>Se mål og beregningsgrunnlag</summary>
+                    <div class="nutrition-target-table-wrap">
+                        <table class="nutrition-target-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Næringsstoff</th>
+                                    <th scope="col">Per dag</th>
+                                    <th scope="col">Per uke</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for target in nutrient_targets %}
+                                    <tr>
+                                        <th scope="row">{{ target.label }}</th>
+                                        <td>{{ target.daily }}</td>
+                                        <td>{{ target.weekly }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="nutrition-health-note">
+                        Grovt estimat basert på Mifflin–St Jeor-formelen. Ved vektnedgang trekkes 300 kcal
+                        fra beregnet vedlikehold per dag; ved vektoppgang legges 200 kcal til.
+                        {% if profile.goal == 'gain' %}
+                            Proteinområdet på 1,4–2,0 g/kg kroppsvekt bygger på anbefalinger for voksne som trener,
+                            og bruker nåværende vekt — ikke målvekten. Det forutsetter regelmessig styrketrening.
+                            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5477153/" target="_blank" rel="noopener noreferrer">Kilde: ISSN sin faglige gjennomgang om protein og trening.</a>
+                        {% else %}
+                            Proteinverdien er et generelt minimum på 0,8 g/kg kroppsvekt for voksne.
+                        {% endif %}
+                        Karbohydrat- og fettområdene følger vanlige referanseområder for voksne;
+                        mettet fett og fritt sukker er øvre grenser, fiber er et minimum, og salt er maksimalt
+                        5 g per dag. Ukestallene er dagsverdier ganget med sju.
+                        Sukkerverdien i matloggen omfatter også naturlig sukker og kan derfor ikke direkte
+                        sammenlignes med grensen for fritt sukker. Dette er ikke medisinsk rådgivning;
+                        behov varierer fra person til person.
+                    </p>
+                </details>
+                <section class="nutrition-progress-section" aria-labelledby="nutrition-progress-title">
+                    <div class="nutrition-section-heading">
+                        <div>
+                            <p class="nutrition-eyebrow">DAG OG UKE</p>
+                            <h3 id="nutrition-progress-title">Næringsmål</h3>
+                        </div>
+                        <div class="nutrition-period-switch" role="group" aria-label="Vis periode">
+                            <button type="button" data-progress-period-button="day" aria-pressed="true">Dag</button>
+                            <button type="button" data-progress-period-button="week" aria-pressed="false">Uke</button>
+                        </div>
+                    </div>
+                    <p class="nutrition-period-caption" data-progress-period-caption="day">
+                        For {{ valgt_dato }}
+                    </p>
+                    <p class="nutrition-period-caption" data-progress-period-caption="week" hidden>
+                        Uken {{ week_start }}–{{ week_end }}
+                    </p>
+                    {% for period, rings in [('day', daily_progress_rings), ('week', weekly_progress_rings)] %}
+                        <div class="nutrition-progress-grid" data-progress-period="{{ period }}"{% if period == 'week' %} hidden{% endif %}>
+                            {% for item in rings %}
+                                <article class="nutrition-progress-item">
+                                    <div
+                                        class="nutrition-progress-ring{% if item.over %} nutrition-progress-over{% endif %}"
+                                        style="--ring-progress: {{ item.progress }}%"
+                                        role="img"
+                                        aria-label="{{ item.label }}: {{ '%.1f'|format(item.consumed) }} {{ item.unit }} av {{ item.target_label }}"
+                                    >
+                                        <span>
+                                            <strong>{{ "%.0f"|format(item.consumed) }}</strong>
+                                            <small>{{ item.unit }}</small>
+                                        </span>
+                                    </div>
+                                    <h4>{{ item.label }}</h4>
+                                    <p class="nutrition-progress-target">Mål: {{ item.target_label }}</p>
+                                    <small class="nutrition-progress-status">{{ item.status }}</small>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </section>
+            {% else %}
+                <p class="nutrition-eyebrow">KOM I GANG</p>
+                <h2>Sett opp profilen din</h2>
+                <p class="nutrition-card-description">
+                    Legg inn opplysningene dine for å få et estimat på daglig og ukentlig energibehov.
+                </p>
+                {% include "_profilskjema.html" %}
+                <p class="nutrition-health-note">
+                    Estimatet er kun ment som generell veiledning. Hvis du er under 18 år, gravid
+                    eller har en sykdom som påvirker kostholdet, bør du rådføre deg med helsepersonell.
+                </p>
+            {% endif %}
+        </section>
+
+        <section class="nutrition-card nutrition-water-card" aria-labelledby="water-log-title">
+            <div class="nutrition-section-heading">
+                <div>
+                    <p class="nutrition-eyebrow">VANNLOGG</p>
+                    <h2 id="water-log-title">Vann i dag</h2>
+                </div>
+                <p>
+                    {{ water_total_ml }} ml{% if profile.get('water_goal_ml') %}
+                        av {{ profile.water_goal_ml }} ml
+                    {% endif %}
+                </p>
+            </div>
+            {% if not profile.get('water_goal_ml') %}
+                <p class="nutrition-card-description">
+                    Du kan logge vann nå. Sett ditt eget daglige mål i profilen for å vise progresjon.
+                </p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('registrer_vann') }}" class="nutrition-form nutrition-water-form">
+                <input type="hidden" name="dato" value="{{ valgt_dato }}">
+                <div>
+                    <label for="milliliters">Mengde vann (ml)</label>
+                    <input type="number" id="milliliters" name="milliliters" min="1" max="10000" step="1" placeholder="F.eks. 250" required>
+                </div>
+                <button type="submit">Legg til vann</button>
+            </form>
+            {% if water_entries %}
+                <ul class="nutrition-water-entries">
+                    {% for entry in water_entries %}
+                        <li>
+                            <span>{{ entry.milliliters }} ml</span>
+                            <form method="POST" action="{{ url_for('slett_vannregistrering', entry_id=entry.id) }}" class="inline-form">
+                                <input type="hidden" name="dato" value="{{ valgt_dato }}">
+                                <button type="submit" aria-label="Slett {{ entry.milliliters }} ml vann">Slett</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="nutrition-empty-hint">Ingen vann er registrert for denne dagen ennå.</p>
+            {% endif %}
+        </section>
 
         <section class="nutrition-summary" aria-labelledby="nutrition-summary-title">
             <div class="nutrition-section-heading">
@@ -78,6 +237,19 @@
                     </div>
                 </div>
                 <p class="nutrition-card-description">Bruk næringsinnholdet per 100 g fra pakken.</p>
+                <form id="product-search-form" class="nutrition-product-search">
+                    <label for="product-search-query">Finn produkt fra Open Food Facts</label>
+                    <div>
+                        <input type="search" id="product-search-query" minlength="2" maxlength="100" placeholder="Søk på produktnavn eller strekkode" required>
+                        <button type="submit">Søk</button>
+                    </div>
+                    <p class="nutrition-search-attribution">
+                        Produktdata fra <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Food Facts</a>.
+                        Kontroller næringsinnholdet mot pakken før du lagrer.
+                    </p>
+                    <div id="product-search-status" class="nutrition-search-status" role="status" aria-live="polite"></div>
+                    <ul id="product-search-results" class="nutrition-search-results"></ul>
+                </form>
                 <form method="POST" action="{{ url_for('legg_til_mat') }}" class="nutrition-form">
                     <input type="hidden" name="dato" value="{{ valgt_dato }}">
                     <div class="nutrition-form-grid">
@@ -98,6 +270,22 @@
                     </div>
                     <button type="submit">Lagre matvare</button>
                 </form>
+                <details class="nutrition-food-management">
+                    <summary>Administrer matvarer ({{ matvarer|length }})</summary>
+                    <ul>
+                        {% for matvare in matvarer %}
+                            <li>
+                                <span>
+                                    <strong>{{ matvare.name }}</strong>
+                                    {% if matvare.description %}
+                                        <small>{{ matvare.description }}</small>
+                                    {% endif %}
+                                </span>
+                                <a class="nutrition-edit-link" href="{{ url_for('endre_matvare', matvare_id=matvare.id, dato=valgt_dato) }}">Rediger</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </details>
             </section>
         </div>
 
@@ -155,4 +343,9 @@
             {% endif %}
         </section>
     </main>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/product-search.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/nutrition-progress.js') }}" defer></script>
 {% endblock %}

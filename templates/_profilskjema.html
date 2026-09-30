@@ -1,0 +1,56 @@
+<form method="POST" action="{{ url_for('profil') }}" class="nutrition-form nutrition-profile-form">
+    <p class="nutrition-card-description">
+        Beregningen bruker alder, biologisk kjønn, høyde, vekt og aktivitetsnivå.
+        Opplysningene lagres lokalt i denne appens database.
+    </p>
+    <div class="nutrition-form-grid">
+        <div>
+            <label for="age">Alder</label>
+            <input type="number" id="age" name="age" min="18" max="100" value="{{ profile.get('age', '') }}" required>
+        </div>
+        <div>
+            <label for="biological_sex">Biologisk kjønn</label>
+            <select id="biological_sex" name="biological_sex" required>
+                <option value="">Velg</option>
+                <option value="female"{% if profile.get('biological_sex') == 'female' %} selected{% endif %}>Kvinne</option>
+                <option value="male"{% if profile.get('biological_sex') == 'male' %} selected{% endif %}>Mann</option>
+            </select>
+        </div>
+        <div>
+            <label for="weight_kg">Vekt (kg)</label>
+            <input type="number" id="weight_kg" name="weight_kg" min="35" max="300" step="0.1" value="{{ profile.get('weight_kg', '') }}" required>
+        </div>
+        <div>
+            <label for="height_cm">Høyde (cm)</label>
+            <input type="number" id="height_cm" name="height_cm" min="120" max="230" step="0.1" value="{{ profile.get('height_cm', '') }}" required>
+        </div>
+        <div>
+            <label for="activity_level">Aktivitetsnivå</label>
+            <select id="activity_level" name="activity_level" required>
+                <option value="">Velg</option>
+                {% for key, label in activity_levels.items() %}
+                    <option value="{{ key }}"{% if profile.get('activity_level') == key %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="goal">Målet ditt</label>
+            <select id="goal" name="goal" required>
+                <option value="">Velg</option>
+                {% for key, label in goals.items() %}
+                    <option value="{{ key }}"{% if profile.get('goal') == key %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="nutrition-field-wide">
+            <label for="goal_weight_kg">Ønsket vekt i kg (valgfritt)</label>
+            <input type="number" id="goal_weight_kg" name="goal_weight_kg" min="30" max="300" step="0.1" value="{{ profile.get('goal_weight_kg') or '' }}">
+        </div>
+        <div class="nutrition-field-wide">
+            <label for="water_goal_ml">Ditt daglige vannmål (ml)</label>
+            <input type="number" id="water_goal_ml" name="water_goal_ml" min="250" max="10000" step="50" value="{{ profile.get('water_goal_ml') or '' }}" required>
+            <small>Velg selv et mål mellom 250 og 10 000 ml. Dette er ikke en medisinsk anbefaling.</small>
+        </div>
+    </div>
+    <button type="submit">Lagre profilen</button>
+</form>

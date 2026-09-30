@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - Matlogg{% endblock %}
+
+{% block content %}
+    <main class="nutrition-page">
+        <header class="nutrition-hero">
+            <div>
+                <p class="nutrition-eyebrow">PERSONLIG PROFIL</p>
+                <h1>Opplysningene dine</h1>
+                <p>Brukes til å beregne et veiledende daglig og ukentlig energimål.</p>
+            </div>
+        </header>
+
+        <section class="nutrition-card">
+            {% include "_profilskjema.html" %}
+            <p class="nutrition-health-note">
+                Estimatet er kun ment som generell veiledning, ikke medisinsk rådgivning.
+                Faktisk energibehov varierer fra person til person.
+            </p>
+        </section>
+    </main>
+{% endblock %}
