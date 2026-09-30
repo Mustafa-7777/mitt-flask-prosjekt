@@ -19,6 +19,33 @@ NUTRIENTS = (
     ("sugar", "Sukker", "g"),
     ("salt", "Salt", "g"),
 )
+STARTER_FOODS = (
+    (
+        "Egg",
+        "Omtrent 50 g per egg. Næringsverdiene er omtrentlige og oppgitt per 100 g.",
+        (143, 12.6, 0.7, 9.5, 3.1, 0, 0.4, 0.36),
+    ),
+    (
+        "Banan",
+        "Omtrent 120 g spiselig del per middels banan. Næringsverdiene er omtrentlige og oppgitt per 100 g.",
+        (89, 1.1, 22.8, 0.3, 0.1, 2.6, 12.2, 0.001),
+    ),
+    (
+        "Eple",
+        "Omtrent 180 g spiselig del per middels eple. Næringsverdiene er omtrentlige og oppgitt per 100 g.",
+        (52, 0.3, 13.8, 0.2, 0, 2.4, 10.4, 0.001),
+    ),
+    (
+        "Havregryn",
+        "Tørre havregryn. Næringsverdiene er omtrentlige og oppgitt per 100 g.",
+        (389, 16.9, 66.3, 6.9, 1.2, 10.6, 0.9, 0.002),
+    ),
+    (
+        "Melk (1,5 % fett)",
+        "Næringsverdiene er omtrentlige og oppgitt per 100 g.",
+        (46, 3.4, 4.8, 1.5, 1.0, 0, 4.8, 0.1),
+    ),
+)
 
 
 def get_db():
@@ -44,6 +71,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS foods (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '',
             kcal REAL NOT NULL CHECK (kcal >= 0),
             protein REAL NOT NULL CHECK (protein >= 0),
             carbs REAL NOT NULL CHECK (carbs >= 0),
@@ -55,6 +83,28 @@ def init_db():
         )
         """
     )
+    food_columns = {
+        column["name"]
+        for column in database.execute("PRAGMA table_info(foods)").fetchall()
+    }
+    if "description" not in food_columns:
+        database.execute(
+            "ALTER TABLE foods ADD COLUMN description TEXT NOT NULL DEFAULT ''"
+        )
+    nutrient_columns = ", ".join(
+        nutrient for nutrient, _label, _unit in NUTRIENTS
+    )
+    placeholders = ", ".join("?" for _ in range(len(NUTRIENTS) + 2))
+    for name, description, values in STARTER_FOODS:
+        exists = database.execute(
+            "SELECT 1 FROM foods WHERE name = ? LIMIT 1", (name,)
+        ).fetchone()
+        if not exists:
+            database.execute(
+                f"INSERT INTO foods (name, description, {nutrient_columns}) "
+                f"VALUES ({placeholders})",
+                (name, description, *values),
+            )
     database.execute(
         """
         CREATE TABLE IF NOT EXISTS food_entries (
@@ -252,11 +302,11 @@ def matlogg():
     valgt_dato = get_selected_date()
     database = get_db()
     matvarer = database.execute(
-        "SELECT id, name FROM foods ORDER BY name COLLATE NOCASE"
+        "SELECT id, name, description FROM foods ORDER BY name COLLATE NOCASE"
     ).fetchall()
     oppforinger = database.execute(
         """
-        SELECT e.id, f.name, e.grams,
+        SELECT e.id, f.name, f.description, e.grams,
                f.kcal * e.grams / 100.0 AS kcal,
                f.protein * e.grams / 100.0 AS protein,
                f.carbs * e.grams / 100.0 AS carbs,
@@ -291,6 +341,7 @@ def matlogg():
 def legg_til_mat():
     valgt_dato = request.form.get("dato", date.today().isoformat())
     navn = request.form.get("name", "").strip()
+    beskrivelse = request.form.get("description", "").strip()
 
     try:
         valgt_dato = date.fromisoformat(valgt_dato).isoformat()
@@ -300,6 +351,9 @@ def legg_til_mat():
 
     if not navn or len(navn) > 100:
         flash("Skriv inn et navn på matvaren (maks 100 tegn).")
+        return redirect(url_for("matlogg", dato=valgt_dato))
+    if len(beskrivelse) > 500:
+        flash("Beskrivelsen kan ikke være lengre enn 500 tegn.")
         return redirect(url_for("matlogg", dato=valgt_dato))
 
     try:
@@ -312,11 +366,17 @@ def legg_til_mat():
         return redirect(url_for("matlogg", dato=valgt_dato))
 
     database = get_db()
-    placeholders = ", ".join("?" for _ in range(len(NUTRIENTS) + 1))
-    columns = ", ".join(("name", *(nutrient for nutrient, _label, _unit in NUTRIENTS)))
+    placeholders = ", ".join("?" for _ in range(len(NUTRIENTS) + 2))
+    columns = ", ".join(
+        ("name", "description", *(nutrient for nutrient, _label, _unit in NUTRIENTS))
+    )
     database.execute(
         f"INSERT INTO foods ({columns}) VALUES ({placeholders})",
-        (navn, *(verdier[nutrient] for nutrient, _label, _unit in NUTRIENTS)),
+        (
+            navn,
+            beskrivelse,
+            *(verdier[nutrient] for nutrient, _label, _unit in NUTRIENTS),
+        ),
     )
     database.commit()
     database.close()

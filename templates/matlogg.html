@@ -54,13 +54,13 @@
                             <select id="food_id" name="food_id" required>
                                 <option value="">Velg matvare</option>
                                 {% for matvare in matvarer %}
-                                    <option value="{{ matvare.id }}">{{ matvare.name }}</option>
+                                    <option value="{{ matvare.id }}">{{ matvare.name }}{% if matvare.description %} — {{ matvare.description }}{% endif %}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div>
                             <label for="grams">Mengde (gram)</label>
-                            <input type="number" id="grams" name="grams" min="0.1" step="any" placeholder="For eksempel 150" required>
+                            <input type="number" id="grams" name="grams" min="0.1" step="any" placeholder="F.eks. 50 for ett egg" required>
                         </div>
                     </div>
                     <button type="submit">Legg til i dagens logg</button>
@@ -84,6 +84,10 @@
                         <div class="nutrition-field-wide">
                             <label for="name">Navn på matvaren</label>
                             <input type="text" id="name" name="name" maxlength="100" placeholder="For eksempel Havregryn" required>
+                        </div>
+                        <div class="nutrition-field-wide">
+                            <label for="description">Beskrivelse (valgfritt)</label>
+                            <textarea id="description" name="description" maxlength="500" rows="3" placeholder="For eksempel smak, merke eller hvordan produktet brukes"></textarea>
                         </div>
                         {% for nutrient, label, unit in nutrients %}
                             <div>
@@ -121,7 +125,12 @@
                         <tbody>
                             {% for oppforing in oppforinger %}
                                 <tr>
-                                    <td>{{ oppforing.name }}</td>
+                                    <td>
+                                        <strong>{{ oppforing.name }}</strong>
+                                        {% if oppforing.description %}
+                                            <small class="nutrition-product-description">{{ oppforing.description }}</small>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ "%.1f"|format(oppforing.grams) }} g</td>
                                     {% for nutrient, _label, unit in nutrients %}
                                         <td>{{ "%.1f"|format(oppforing[nutrient]) }} {{ unit }}</td>

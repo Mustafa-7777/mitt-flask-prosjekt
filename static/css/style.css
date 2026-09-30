@@ -303,6 +303,7 @@ button {
 }
 
 .nutrition-form input,
+.nutrition-form textarea,
 .nutrition-form select,
 .nutrition-date-form input {
     min-height: 44px;
@@ -315,10 +316,29 @@ button {
 }
 
 .nutrition-form input:focus,
+.nutrition-form textarea:focus,
 .nutrition-form select:focus,
 .nutrition-date-form input:focus {
     border-color: var(--accent);
     outline: 3px solid color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.nutrition-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 88px;
+    resize: vertical;
+    font: inherit;
+}
+
+.nutrition-product-description {
+    display: block;
+    max-width: 260px;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    white-space: normal;
 }
 
 .nutrition-form button {
