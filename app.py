@@ -1,18 +1,31 @@
+import math
 import os
 import sqlite3
+from datetime import date
 
-from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
 app.config["DATABASE"] = os.path.join(app.instance_path, "oppgaver.db")
 antall_besok = 0
+NUTRIENTS = (
+    ("kcal", "Kalorier", "kcal"),
+    ("protein", "Protein", "g"),
+    ("carbs", "Karbohydrater", "g"),
+    ("fat", "Fett", "g"),
+    ("saturated_fat", "Mettet fett", "g"),
+    ("fiber", "Fiber", "g"),
+    ("sugar", "Sukker", "g"),
+    ("salt", "Salt", "g"),
+)
 
 
 def get_db():
     os.makedirs(app.instance_path, exist_ok=True)
     database = sqlite3.connect(app.config["DATABASE"])
     database.row_factory = sqlite3.Row
+    database.execute("PRAGMA foreign_keys = ON")
     return database
 
 
@@ -23,6 +36,32 @@ def init_db():
         CREATE TABLE IF NOT EXISTS oppgaver (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             tekst TEXT NOT NULL
+        )
+        """
+    )
+    database.execute(
+        """
+        CREATE TABLE IF NOT EXISTS foods (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            kcal REAL NOT NULL CHECK (kcal >= 0),
+            protein REAL NOT NULL CHECK (protein >= 0),
+            carbs REAL NOT NULL CHECK (carbs >= 0),
+            fat REAL NOT NULL CHECK (fat >= 0),
+            saturated_fat REAL NOT NULL CHECK (saturated_fat >= 0),
+            fiber REAL NOT NULL CHECK (fiber >= 0),
+            sugar REAL NOT NULL CHECK (sugar >= 0),
+            salt REAL NOT NULL CHECK (salt >= 0)
+        )
+        """
+    )
+    database.execute(
+        """
+        CREATE TABLE IF NOT EXISTS food_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            food_id INTEGER NOT NULL REFERENCES foods (id),
+            eaten_on TEXT NOT NULL,
+            grams REAL NOT NULL CHECK (grams > 0)
         )
         """
     )
@@ -75,6 +114,28 @@ def slett_oppgave(oppgave_id):
 
 
 init_db()
+
+
+def get_selected_date():
+    selected_date = request.args.get("dato", date.today().isoformat())
+    try:
+        return date.fromisoformat(selected_date).isoformat()
+    except (TypeError, ValueError):
+        abort(400, description="Datoet må være på formatet ÅÅÅÅ-MM-DD.")
+
+
+def parse_non_negative_number(value):
+    number = float(value)
+    if not math.isfinite(number) or number < 0:
+        raise ValueError
+    return number
+
+
+def parse_positive_number(value):
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise ValueError
+    return number
 
 
 @app.route("/")
@@ -184,6 +245,135 @@ def oppgaver():
         return redirect(url_for("oppgaver"))
 
     return render_template("oppgaver.html", oppgaver=hent_oppgaver())
+
+
+@app.get("/matlogg")
+def matlogg():
+    valgt_dato = get_selected_date()
+    database = get_db()
+    matvarer = database.execute(
+        "SELECT id, name FROM foods ORDER BY name COLLATE NOCASE"
+    ).fetchall()
+    oppforinger = database.execute(
+        """
+        SELECT e.id, f.name, e.grams,
+               f.kcal * e.grams / 100.0 AS kcal,
+               f.protein * e.grams / 100.0 AS protein,
+               f.carbs * e.grams / 100.0 AS carbs,
+               f.fat * e.grams / 100.0 AS fat,
+               f.saturated_fat * e.grams / 100.0 AS saturated_fat,
+               f.fiber * e.grams / 100.0 AS fiber,
+               f.sugar * e.grams / 100.0 AS sugar,
+               f.salt * e.grams / 100.0 AS salt
+        FROM food_entries AS e
+        JOIN foods AS f ON f.id = e.food_id
+        WHERE e.eaten_on = ?
+        ORDER BY e.id DESC
+        """,
+        (valgt_dato,),
+    ).fetchall()
+    totals = {
+        nutrient: sum(entry[nutrient] for entry in oppforinger)
+        for nutrient, _label, _unit in NUTRIENTS
+    }
+    database.close()
+    return render_template(
+        "matlogg.html",
+        valgt_dato=valgt_dato,
+        matvarer=matvarer,
+        oppforinger=oppforinger,
+        totals=totals,
+        nutrients=NUTRIENTS,
+    )
+
+
+@app.post("/matlogg/mat")
+def legg_til_mat():
+    valgt_dato = request.form.get("dato", date.today().isoformat())
+    navn = request.form.get("name", "").strip()
+
+    try:
+        valgt_dato = date.fromisoformat(valgt_dato).isoformat()
+    except (TypeError, ValueError):
+        flash("Velg en gyldig dato.")
+        return redirect(url_for("matlogg"))
+
+    if not navn or len(navn) > 100:
+        flash("Skriv inn et navn på matvaren (maks 100 tegn).")
+        return redirect(url_for("matlogg", dato=valgt_dato))
+
+    try:
+        verdier = {
+            nutrient: parse_non_negative_number(request.form.get(nutrient, ""))
+            for nutrient, _label, _unit in NUTRIENTS
+        }
+    except ValueError:
+        flash("Næringsverdiene må være gyldige tall som er null eller større.")
+        return redirect(url_for("matlogg", dato=valgt_dato))
+
+    database = get_db()
+    placeholders = ", ".join("?" for _ in range(len(NUTRIENTS) + 1))
+    columns = ", ".join(("name", *(nutrient for nutrient, _label, _unit in NUTRIENTS)))
+    database.execute(
+        f"INSERT INTO foods ({columns}) VALUES ({placeholders})",
+        (navn, *(verdier[nutrient] for nutrient, _label, _unit in NUTRIENTS)),
+    )
+    database.commit()
+    database.close()
+    flash(f"{navn} ble lagt til i matvarelisten.")
+    return redirect(url_for("matlogg", dato=valgt_dato))
+
+
+@app.post("/matlogg/registrer")
+def registrer_mat():
+    valgt_dato = request.form.get("dato", "")
+    try:
+        valgt_dato = date.fromisoformat(valgt_dato).isoformat()
+        matvare_id = int(request.form.get("food_id", ""))
+        gram = parse_positive_number(request.form.get("grams", ""))
+    except (ValueError, TypeError):
+        flash("Velg en gyldig dato og matvare, og oppgi en mengde større enn 0 gram.")
+        return redirect(url_for("matlogg"))
+
+    database = get_db()
+    matvare = database.execute(
+        "SELECT name FROM foods WHERE id = ?", (matvare_id,)
+    ).fetchone()
+    if not matvare:
+        database.close()
+        flash("Matvaren ble ikke funnet. Velg en matvare fra listen.")
+        return redirect(url_for("matlogg", dato=valgt_dato))
+
+    database.execute(
+        "INSERT INTO food_entries (food_id, eaten_on, grams) VALUES (?, ?, ?)",
+        (matvare_id, valgt_dato, gram),
+    )
+    database.commit()
+    database.close()
+    flash(f"{matvare['name']} ble registrert.")
+    return redirect(url_for("matlogg", dato=valgt_dato))
+
+
+@app.post("/matlogg/oppforing/<int:oppforing_id>/slett")
+def slett_matoppforing(oppforing_id):
+    valgt_dato = request.form.get("dato", date.today().isoformat())
+    try:
+        valgt_dato = date.fromisoformat(valgt_dato).isoformat()
+    except (TypeError, ValueError):
+        flash("Velg en gyldig dato.")
+        return redirect(url_for("matlogg"))
+
+    database = get_db()
+    cursor = database.execute(
+        "DELETE FROM food_entries WHERE id = ?", (oppforing_id,)
+    )
+    database.commit()
+    database.close()
+    if cursor.rowcount:
+        flash("Matregistreringen ble slettet.")
+    else:
+        flash("Matregistreringen ble ikke funnet.")
+    return redirect(url_for("matlogg", dato=valgt_dato))
 
 
 @app.route("/oppgaver/<int:oppgave_id>/endre", methods=["GET", "POST"])

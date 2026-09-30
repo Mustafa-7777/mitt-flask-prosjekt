@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Matlogg{% endblock %}
+
+{% block content %}
+    <main class="nutrition-page">
+        <header class="nutrition-hero">
+            <div>
+                <p class="nutrition-eyebrow">DIN DAGLIGE OVERSIKT</p>
+                <h1>Matlogg</h1>
+                <p>Følg med på hva du spiser og næringsinntaket ditt gjennom dagen.</p>
+            </div>
+            <form method="GET" action="{{ url_for('matlogg') }}" class="nutrition-date-form">
+                <label for="dato">Velg dato</label>
+                <div>
+                    <input type="date" id="dato" name="dato" value="{{ valgt_dato }}" required>
+                    <button type="submit">Vis dag</button>
+                </div>
+            </form>
+        </header>
+
+        <section class="nutrition-summary" aria-labelledby="nutrition-summary-title">
+            <div class="nutrition-section-heading">
+                <div>
+                    <p class="nutrition-eyebrow">OPPSUMMERING</p>
+                    <h2 id="nutrition-summary-title">Dagens næringsinntak</h2>
+                </div>
+                <p>{{ valgt_dato }}</p>
+            </div>
+            <dl class="nutrition-totals">
+                {% for nutrient, label, unit in nutrients %}
+                    <div class="nutrition-metric{% if nutrient == 'kcal' %} nutrition-metric-primary{% endif %}">
+                        <dt>{{ label }}</dt>
+                        <dd>{{ "%.1f"|format(totals[nutrient]) }} {{ unit }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
+        </section>
+
+        <div class="nutrition-actions">
+            <section class="nutrition-card">
+                <div class="nutrition-section-heading">
+                    <div>
+                        <p class="nutrition-eyebrow">RASK REGISTRERING</p>
+                        <h2>Hva har du spist?</h2>
+                    </div>
+                </div>
+            {% if matvarer %}
+                <form method="POST" action="{{ url_for('registrer_mat') }}" class="nutrition-form nutrition-entry-form">
+                    <input type="hidden" name="dato" value="{{ valgt_dato }}">
+                    <div class="nutrition-form-grid">
+                        <div>
+                            <label for="food_id">Matvare</label>
+                            <select id="food_id" name="food_id" required>
+                                <option value="">Velg matvare</option>
+                                {% for matvare in matvarer %}
+                                    <option value="{{ matvare.id }}">{{ matvare.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="grams">Mengde (gram)</label>
+                            <input type="number" id="grams" name="grams" min="0.1" step="any" placeholder="For eksempel 150" required>
+                        </div>
+                    </div>
+                    <button type="submit">Legg til i dagens logg</button>
+                </form>
+            {% else %}
+                <p class="nutrition-empty-hint">Legg til en matvare nedenfor før du registrerer et måltid.</p>
+            {% endif %}
+            </section>
+
+            <section class="nutrition-card nutrition-food-card">
+                <div class="nutrition-section-heading">
+                    <div>
+                        <p class="nutrition-eyebrow">MATVARELISTE</p>
+                        <h2>Legg til en matvare</h2>
+                    </div>
+                </div>
+                <p class="nutrition-card-description">Bruk næringsinnholdet per 100 g fra pakken.</p>
+                <form method="POST" action="{{ url_for('legg_til_mat') }}" class="nutrition-form">
+                    <input type="hidden" name="dato" value="{{ valgt_dato }}">
+                    <div class="nutrition-form-grid">
+                        <div class="nutrition-field-wide">
+                            <label for="name">Navn på matvaren</label>
+                            <input type="text" id="name" name="name" maxlength="100" placeholder="For eksempel Havregryn" required>
+                        </div>
+                        {% for nutrient, label, unit in nutrients %}
+                            <div>
+                                <label for="{{ nutrient }}">{{ label }} ({{ unit }})</label>
+                                <input type="number" id="{{ nutrient }}" name="{{ nutrient }}" min="0" step="any" placeholder="0" required>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Lagre matvare</button>
+                </form>
+            </section>
+        </div>
+
+        <section class="nutrition-card">
+            <div class="nutrition-section-heading">
+                <div>
+                    <p class="nutrition-eyebrow">MAT OG MENGDE</p>
+                    <h2>Registreringer</h2>
+                </div>
+                <span class="nutrition-entry-count">{{ oppforinger|length }} registrert</span>
+            </div>
+            {% if oppforinger %}
+                <div class="nutrition-table-wrap">
+                    <table class="nutrition-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Matvare</th>
+                                <th scope="col">Mengde</th>
+                                {% for _nutrient, label, _unit in nutrients %}
+                                    <th scope="col">{{ label }}</th>
+                                {% endfor %}
+                                <th scope="col">Handling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for oppforing in oppforinger %}
+                                <tr>
+                                    <td>{{ oppforing.name }}</td>
+                                    <td>{{ "%.1f"|format(oppforing.grams) }} g</td>
+                                    {% for nutrient, _label, unit in nutrients %}
+                                        <td>{{ "%.1f"|format(oppforing[nutrient]) }} {{ unit }}</td>
+                                    {% endfor %}
+                                    <td>
+                                        <form method="POST" action="{{ url_for('slett_matoppforing', oppforing_id=oppforing.id) }}" class="inline-form">
+                                            <input type="hidden" name="dato" value="{{ valgt_dato }}">
+                                            <button type="submit">Slett</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="nutrition-empty-state">
+                    <span aria-hidden="true">✦</span>
+                    <p>Ingen matvarer er registrert denne dagen ennå</p>
+                    <small>Registreringene dine vises her når du legger til dagens første måltid.</small>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+{% endblock %}
